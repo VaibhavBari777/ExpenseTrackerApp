@@ -7,32 +7,30 @@ const path = require('path')
 const connectDb = require("./config/connectDb")
 
 dotenv.config()
-
-//call Db
 connectDb()
+
 const app = express()
 app.use(morgan('dev'))
 app.use(express.json())
 app.use(cors())
-// routes
-// app.get('/', (req,res)=>{
-//     res.send("<h1>Hello from server</h1>")
 
-// })
-app.use('/api/v1/user' , require('./routes/userRoute'))
-
-// transcation routes
-//  Correct
+app.use('/api/v1/user', require('./routes/userRoute'))
 app.use('/api/v1/transaction', require('./routes/transactionRoute'))
 
-// static files
-app.use(express.static(path.join(__dirname,'./client/build')))
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'client/build', 'index.html'))
-})
+const __dirname1 = path.resolve();
 
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname1, '/client/build')));
 
-const PORT = process.env.PORT || 8080
-app.listen(PORT , ()=>{
-    console.log(`Server runnning on ${PORT}`)
-})
+  app.get('*', (req, res) =>
+    res.sendFile(path.resolve(__dirname1, 'client', 'build', 'index.html'))
+  );
+} else {
+  app.get('/', (req, res) => {
+    res.send('API is running successfully 🚀');
+  });
+}
+// ------------------------------------------------
+
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => console.log(` Server running on port ${PORT}`));
